@@ -1,0 +1,86 @@
+1) Create a file and add executable permission to all users (user, group, others)
+
+harish@Harish:~/Embedur_Linux/module_1$ touch file1
+harish@Harish:~/Embedur_Linux/module_1$ chmod a+x file1
+harish@Harish:~/Embedur_Linux/module_1$ ls -l file1
+-rwxr-xr-x 1 harish harish 0 Feb  1 18:49 file
+
+
+2) Create a file and remove write permission for group user alone
+
+harish@Harish:~/Embedur_Linux/module_1$ touch file2
+harish@Harish:~/Embedur_Linux/module_1$ chmod g-w file2
+harish@Harish:~/Embedur_Linux/module_1$ ls -l file2
+-rw-r--r-- 1 harish harish 0 Feb  1 18:49 file2
+
+
+3) Create a file and add a soft link (symbolic link) in a different directory
+
+harish@Harish:~/Embedur_Linux/module_1$ mkdir -p dir1/dir2
+harish@Harish:~/Embedur_Linux/module_1$ touch dir1/dir2/file
+harish@Harish:~/Embedur_Linux/module_1$ ln -s dir1/dir2/file dir1/file_link
+harish@Harish:~/Embedur_Linux/module_1$ ls -l dir1/
+total 4
+drwxr-xr-x 2 harish harish 4096 Feb  1 18:50 dir2
+lrwxrwxrwx 1 harish harish   14 Feb  1 18:51 file_link -> dir1/dir2/file
+
+
+4) Use ps command with options to display all active processes
+
+harish@Harish:~/Embedur_Linux/module_1$ ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  1 18:46 ?        00:00:04 /sbin/init
+root           2       1  0 18:46 ?        00:00:00 /init
+root           7       2  0 18:47 ?        00:00:00 plan9 --control-socket 7 --log-level 4 --server-fd 8 --pipe-fd 10 --log-truncate
+root          46       1  0 18:47 ?        00:00:00 /lib/systemd/systemd-journald
+root          74       1  0 18:47 ?        00:00:00 /lib/systemd/systemd-udevd
+root          86       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/bare_5.snap /snap/bare/5 -o ro,nodev,allow_other,suid
+root          87       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/core22_1612.snap /snap/core22/1612 -o ro,nodev,allow_other
+root          92       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/core22_1621.snap /snap/core22/1621 -o ro,nodev,allow_other
+root         101       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/gtk-common-themes_1535.snap /snap/gtk-common-themes/1535 -
+root         106       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/snapd_21465.snap /snap/snapd/21465 -o ro,nodev,allow_other
+root         113       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/snapd_21759.snap /snap/snapd/21759 -o ro,nodev,allow_other
+root         117       1  0 18:47 ?        00:00:00 snapfuse /var/lib/snapd/snaps/ubuntu-desktop-installer_1284.snap /snap/ubuntu-desktop-in
+root         121       1  0 18:47 ?        00:00:01 snapfuse /var/lib/snapd/snaps/ubuntu-desktop-installer_1286.snap /snap/ubuntu-desktop-in
+systemd+     182       1  0 18:47 ?        00:00:00 /lib/systemd/systemd-resolved
+root         225       1  0 18:47 ?        00:00:00 /usr/sbin/cron -f -P
+message+     227       1  0 18:47 ?        00:00:00 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --sys
+root         231       1  0 18:47 ?        00:00:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+syslog       232       1  0 18:47 ?        00:00:00 /usr/sbin/rsyslogd -n -iNONE
+root         234       1  0 18:47 ?        00:00:02 /usr/lib/snapd/snapd
+root         235       1  0 18:47 ?        00:00:00 /lib/systemd/systemd-logind
+root         244       1  0 18:47 ?        00:00:00 /bin/bash /snap/ubuntu-desktop-installer/1286/bin/subiquity-server
+root         253       1  0 18:47 hvc0     00:00:00 /sbin/agetty -o -p -- \u --noclear --keep-baud console 115200,38400,9600 vt220
+root         255       1  0 18:47 ?        00:00:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-s
+root         256       1  0 18:47 tty1     00:00:00 /sbin/agetty -o -p -- \u --noclear tty1 linux
+root         360     244  1 18:47 ?        00:00:03 /snap/ubuntu-desktop-installer/1286/usr/bin/python3.10 -m subiquity.cmd.server --use-os-
+root         382       2  0 18:47 ?        00:00:00 /init
+root         384     382  0 18:47 ?        00:00:00 /init
+harish       385     384  0 18:47 pts/0    00:00:00 -bash
+root         388       2  0 18:47 pts/1    00:00:00 /bin/login -f
+harish       394       1  0 18:47 ?        00:00:00 /lib/systemd/systemd --user
+harish       395     394  0 18:47 ?        00:00:00 (sd-pam)
+harish       411     388  0 18:47 pts/1    00:00:00 -bash
+root         441     360  1 18:47 ?        00:00:03 python3 /snap/ubuntu-desktop-installer/1286/usr/bin/cloud-init status --wait
+root        1624       2  0 18:52 ?        00:00:00 /init
+root        1625    1624  0 18:52 ?        00:00:00 /init
+harish      1629    1625  0 18:52 pts/2    00:00:00 -bash
+root        1649       1  0 18:52 ?        00:00:00 /lib/systemd/systemd-timedated
+root        1842       1  0 18:52 ?        00:00:00 snapfuse /var/lib/snapd/snaps/snapd_25935.snap /snap/snapd/25935 -o ro,nodev,allow_other
+root        1843      74  0 18:52 ?        00:00:00 /lib/systemd/systemd-udevd
+harish      1850    1629  0 18:52 pts/2    00:00:00 ps -ef
+
+
+5) Create 3 files in dir1 and redirect ls output sorted by timestamp to a file
+
+harish@Harish:~/Embedur_Linux/module_1$ touch dir1/file1 dir1/file2 dir1/file3
+harish@Harish:~/Embedur_Linux/module_1$ cd dir1/
+harish@Harish:~/Embedur_Linux/module_1/dir1$ ls -lt > sorted_op.txt
+harish@Harish:~/Embedur_Linux/module_1/dir1$ cat sorted_op.txt
+total 4
+-rw-r--r-- 1 harish harish    0 Feb  1 18:54 sorted_op.txt
+-rw-r--r-- 1 harish harish    0 Feb  1 18:53 file1
+-rw-r--r-- 1 harish harish    0 Feb  1 18:53 file2
+-rw-r--r-- 1 harish harish    0 Feb  1 18:53 file3
+lrwxrwxrwx 1 harish harish   14 Feb  1 18:51 file_link -> dir1/dir2/file
+drwxr-xr-x 2 harish harish 4096 Feb  1 18:50 dir21
