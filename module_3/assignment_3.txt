@@ -1,0 +1,126 @@
+Automating file backup and reporting to the system
+
+harish@Harish:~/Embedur_Linux/module_3$ mkdir source_dir backup_dir
+
+harish@Harish:~/Embedur_Linux/module_3$ echo "Linux File 1" > source_dir/file1.txt
+echo "Linux File 2" > source_dir/file2.txt
+echo "Ignore this" > source_dir/file3.log
+
+harish@Harish:~/Embedur_Linux/module_3$ sleep 2
+echo "Updated content" >> source_dir/file1.txt
+
+harish@Harish:~/Embedur_Linux/module_3$ cat backup_manager.sh
+#!/bin/bash
+
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <source_dir> <backup_dir> <file_extension>"
+    exit 1
+fi
+
+SOURCE_DIR="$1"
+BACKUP_DIR="$2"
+EXT="$3"
+
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "Error: Source directory does not exist"
+    exit 1
+fi
+
+if [ ! -d "$BACKUP_DIR" ]; then
+    mkdir -p "$BACKUP_DIR" || { echo "Failed to create backup directory"; exit 1; }
+fi
+
+shopt -s nullglob
+
+FILES=("$SOURCE_DIR"/*"$EXT")
+
+if [ "${#FILES[@]}" -eq 0 ]; then
+    echo "No files with extension $EXT found in source directory"
+    exit 0
+fi
+
+export BACKUP_COUNT=0
+TOTAL_SIZE=0
+
+echo "Files to be backed up:"
+for file in "${FILES[@]}"; do
+    size=$(stat -c %s "$file")
+    echo "$(basename "$file") - $size bytes"
+done
+
+for file in "${FILES[@]}"; do
+    dest="$BACKUP_DIR/$(basename "$file")"
+
+    if [ -f "$dest" ]; then
+        if [ "$file" -nt "$dest" ]; then
+            cp "$file" "$dest"
+            ((BACKUP_COUNT++))
+            ((TOTAL_SIZE+= $(stat -c %s "$file")))
+        fi
+    else
+        cp "$file" "$dest"
+        ((BACKUP_COUNT++))
+        ((TOTAL_SIZE+= $(stat -c %s "$file")))
+    fi
+done
+
+REPORT="$BACKUP_DIR/backup_report.log"
+{
+    echo "Backup Summary Report"
+    echo "---------------------"
+    echo "Total files processed: ${#FILES[@]}"
+    echo "Total files backed up: $BACKUP_COUNT"
+    echo "Total size backed up: $TOTAL_SIZE bytes"
+    echo "Backup directory path: $BACKUP_DIR"
+} > "$REPORT"
+
+echo "Backup completed. Report saved to $REPORT"
+
+
+
+harish@Harish:~/Embedur_Linux/module_3$ chmod +x backup_manager.sh
+
+harish@Harish:~/Embedur_Linux/module_3$ ./backup_manager.sh "source_dir" "backup_dir" ".txt"
+Files to be backed up:
+file1.txt - 29 bytes
+file2.txt - 13 bytes
+Backup completed. Report saved to backup_dir/backup_report.log
+
+
+Taking backup where the file is already existing in the backup folder but it is older than source file:
+-------------------------------------------------------------------------------------------------------
+
+
+harish@Harish:~/Embedur_Linux/module_3$ echo "Linux File 1-updated" > source_tst/file1.txt
+harish@Harish:~/Embedur_Linux/module_3$ echo "Linux File 2-updated" > source_tst/file2.txt
+harish@Harish:~/Embedur_Linux/module_3$ echo "Linux File 3" > source_tst/file3.txt
+harish@Harish:~/Embedur_Linux/module_3$ cd source_tst/
+
+harish@Harish:~/Embedur_Linux/module_3/source_tst$ ls
+file1.txt  file2.txt  file3.log  file3.txt
+
+harish@Harish:~/Embedur_Linux/module_3/source_tst$ cd ..
+
+harish@Harish:~/Embedur_Linux/module_3$ ./backup_manager.sh "source_tst" "backup_dir" ".txt"
+Files to be backed up:
+file1.txt - 21 bytes
+file2.txt - 21 bytes
+file3.txt - 13 bytes
+Backup completed. Report saved to backup_dir/backup_report.log
+
+harish@Harish:~/Embedur_Linux/module_3$ cd backup_dir/
+harish@Harish:~/Embedur_Linux/module_3/backup_dir$ cat file1.txt
+Linux File 1-updated
+
+
+Condition where the backup directory is not present and it is created:
+----------------------------------------------------------------------
+
+harish@Harish:~/Embedur_Linux/module_3$ ./backup_manager.sh "source_tst" "backup_tst" ".txt"
+Files to be backed up:
+file1.txt - 21 bytes
+file2.txt - 21 bytes
+file3.txt - 13 bytes
+Backup completed. Report saved to backup_tst/backup_report.log
+harish@Harish:~/Embedur_Linux/module_3$ ls
+backup_dir  backup_manager.sh  backup_tst  source_dir  source_tst
