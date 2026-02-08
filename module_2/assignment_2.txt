@@ -1,0 +1,65 @@
+1) List all files larger than 1 MB in current directory and save output to a file
+
+harish@Harish:~$ find . -maxdepth 1 -type f -size +1M > large_files.txt
+harish@Harish:~$ cat large_files.txt
+./get-pip.py
+
+
+2) Replace all occurrences of localhost with 127.0.0.1
+
+harish@Harish:~/Embedur_Linux/module_2$ nano config.txt
+harish@Harish:~/Embedur_Linux/module_2$ cat config.txt
+server=localhost
+database_host=localhost
+api_url=http://localhost:8080
+backup_server=localhost
+
+harish@Harish:~/Embedur_Linux/module_2$ sed 's/localhost/127.0.0.1/g' config.txt > updated_config.txt
+harish@Harish:~/Embedur_Linux/module_2$ cat updated_config.txt
+server=127.0.0.1
+database_host=127.0.0.1
+api_url=http://127.0.0.1:8080
+backup_server=127.0.0.1
+
+
+3) Extract lines containing ERROR but exclude lines containing DEBUG
+
+harish@Harish:~/Embedur_Linux/module_2$ nano log.txt
+harish@Harish:~/Embedur_Linux/module_2$ cat log.txt
+DEBUG: Starting the application initialization.
+ERROR: Unable to connect to the database.
+INFO: User 'admin' logged in successfully.
+DEBUG: Fetching configuration settings from the server.
+ERROR: DEBUG - Configuration settings could not be applied.
+INFO: Scheduled job 'backup' completed successfully.
+DEBUG: Connection to server timed out. Retrying...
+ERROR: Failed to fetch data from API endpoint '/users'.
+INFO: Maintenance mode activated.
+ERROR: DEBUG - Query execution failed due to a syntax error.
+DEBUG: Reloading application modules.
+ERROR: Missing required parameter in the request.
+INFO: Shutting down the system gracefully.
+DEBUG: Closing unused network connections.
+ERROR: DEBUG - Unexpected server response received.
+
+harish@Harish:~/Embedur_Linux/module_2$ grep "ERROR" log.txt | grep -v "DEBUG" > filtered_log.txt
+harish@Harish:~/Embedur_Linux/module_2$ cat filtered_log.txt
+ERROR: Unable to connect to the database.
+ERROR: Failed to fetch data from API endpoint '/users'.
+ERROR: Missing required parameter in the request.
+
+
+4) Identify the process with the highest memory usage and terminate it
+
+harish@Harish:~/Embedur_Linux/module_2$ ps -eo pid,comm,%mem --sort=-%mem | head -n 2
+    PID COMMAND         %MEM
+    353 python3.10       0.8
+harish@Harish:~/Embedur_Linux/module_2$ kill 353
+-bash: kill: (353) - Operation not permitted
+
+
+5) Print all available gateways in a sorted manner
+
+harish@Harish:~/Embedur_Linux/module_2$ ip route | grep default | sort
+default via 172.21.32.1 dev eth0 proto kernel
+
