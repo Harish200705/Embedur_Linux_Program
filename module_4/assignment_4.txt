@@ -1,0 +1,24 @@
+#!/bin/bash
+
+INPUT_FILE="input.txt"
+OUTPUT_FILE="output.txt"
+
+> "$OUTPUT_FILE"
+
+while IFS= read -r line
+do
+	if [[ $line == frame.time* ]]; then
+		value="${line#*: }"
+		echo "\"frame.time\": \"$value\"," >> "$OUTPUT_FILE"
+	fi
+
+	if [[ $line == wlan.fc.type* ]]; then
+		value="${line#*: }"
+		echo "\"wlan.fc.type\": \"$value\"," >> "$OUTPUT_FILE"
+	fi
+
+	if [[ $line == wlan.fc.subtype* ]]; then
+		value="${line#*: }"
+		echo "\"\wlan.fc.subtype\": \"$value\"," >> "$OUTPUT_FILE"
+	fi
+done < "$INPUT_FILE"
