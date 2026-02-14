@@ -1,0 +1,177 @@
+harish@Harish:~/Embedur_Linux/module_5$ cat file_analyzer.sh
+#!/bin/bash
+
+ERROR_LOG="errors.log"
+> "$ERROR_LOG"
+
+show_help() {
+cat << EOF
+Usage: $0 [OPTIONS]
+
+Options:
+  -d <directory>   Directory to search recursively
+  -k <keyword>     Keyword to search
+  -f <file>        Search keyword directly in a file
+  --help           Display this help menu
+
+Examples:
+  $0 -d logs -k error
+  $0 -f script.sh -k TODO
+EOF
+}
+
+log_error() {
+    echo "ERROR: $1" | tee -a "$ERROR_LOG" >&2
+}
+
+recursive_search() {
+    local dir="$1"
+    local keyword="$2"
+
+    for item in "$dir"/*; do
+        if [[ -d "$item" ]]; then
+            recursive_search "$item" "$keyword"
+        elif [[ -f "$item" ]]; then
+            if grep -q "$keyword" "$item"; then
+                echo "Match found in: $item"
+            fi
+        fi
+    done
+}
+
+validate_keyword() {
+    if [[ -z "$1" ]]; then
+        log_error "Keyword cannot be empty."
+        exit 1
+    fi
+
+    if [[ ! "$1" =~ ^[a-zA-Z0-9_]+$ ]]; then
+        log_error "Invalid keyword. Only alphanumeric and underscore allowed."
+        exit 1
+    fi
+}
+
+while getopts ":d:k:f:-:" opt; do
+    case $opt in
+        d) DIRECTORY="$OPTARG" ;;
+        k) KEYWORD="$OPTARG" ;;
+        f) FILE="$OPTARG" ;;
+        -)
+            case "$OPTARG" in
+                help)
+                    show_help
+                    exit 0
+                    ;;
+                *)
+                    log_error "Unknown option --$OPTARG"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        \?)
+            log_error "Invalid option: -$OPTARG"
+            exit 1
+            ;;
+        :)
+            log_error "Option -$OPTARG requires an argument."
+            exit 1
+            ;;
+    esac
+done
+
+echo "Script Name: $0"
+echo "Total Arguments: $#"
+echo "All Arguments: $@"
+
+if [[ -n "$DIRECTORY" && -n "$KEYWORD" ]]; then
+
+    if [[ ! -d "$DIRECTORY" ]]; then
+        log_error "Directory does not exist."
+        exit 1
+    fi
+
+    validate_keyword "$KEYWORD"
+    recursive_search "$DIRECTORY" "$KEYWORD"
+    echo "Exit Status: $?"
+
+elif [[ -n "$FILE" && -n "$KEYWORD" ]]; then
+
+    if [[ ! -f "$FILE" ]]; then
+        log_error "File does not exist."
+        exit 1
+    fi
+
+    validate_keyword "$KEYWORD"
+
+    content=$(cat "$FILE")
+
+    # Here String
+    grep -n "$KEYWORD" <<< "$content"
+
+    echo "Exit Status: $?"
+
+else
+    log_error "Invalid combination of arguments."
+    show_help
+    exit 1
+fi
+
+harish@Harish:~/Embedur_Linux/module_5$ cat script.sh
+#!/bin/bash
+
+echo "System running"
+echo "No error found"
+echo "TODO: Add error handling"
+harish@Harish:~/Embedur_Linux/module_5$ cd logs/
+harish@Harish:~/Embedur_Linux/module_5/logs$ ls
+app.log  archive  system.log
+harish@Harish:~/Embedur_Linux/module_5/logs$ cat app.log
+Application started
+error: database connection failed
+warning: low memory
+harish@Harish:~/Embedur_Linux/module_5/logs$ cat system.log
+System boot complete
+error: driver missing
+operation successful
+harish@Harish:~/Embedur_Linux/module_5/logs$ cat archive/old.log
+Old log entry
+error: deprecated API used
+
+harish@Harish:~/Embedur_Linux/module_5/logs$ cd ..
+harish@Harish:~/Embedur_Linux/module_5$ chmod +x script.sh file_analyzer.sh
+harish@Harish:~/Embedur_Linux/module_5$ ./file_analyzer.sh -d logs -k error
+Script Name: ./file_analyzer.sh
+Total Arguments: 4
+All Arguments: -d logs -k error
+Match found in: logs/app.log
+Match found in: logs/archive/old.log
+Match found in: logs/system.log
+Exit Status: 0
+harish@Harish:~/Embedur_Linux/module_5$ ./file_analyzer.sh -f script.sh -k TODO
+Script Name: ./file_analyzer.sh
+Total Arguments: 4
+All Arguments: -f script.sh -k TODO
+5:echo "TODO: Add error handling"
+Exit Status: 0
+harish@Harish:~/Embedur_Linux/module_5$ ./file_analyzer.sh --help
+Usage: ./file_analyzer.sh [OPTIONS]
+
+Options:
+  -d <directory>   Directory to search recursively
+  -k <keyword>     Keyword to search
+  -f <file>        Search keyword directly in a file
+  --help           Display this help menu
+
+Examples:
+  ./file_analyzer.sh -d logs -k error
+  ./file_analyzer.sh -f script.sh -k TODO
+harish@Harish:~/Embedur_Linux/module_5$ ./file_analyzer.sh -d logs -k "!!!"
+./file_analyzer.sh -d logs -k "./file_analyzer.sh --help!"
+Script Name: ./file_analyzer.sh
+Total Arguments: 4
+All Arguments: -d logs -k ./file_analyzer.sh --help!
+ERROR: Invalid keyword. Only alphanumeric and underscore allowed.
+harish@Harish:~/Embedur_Linux/module_5$ ls
+errors.log  file_analyzer.sh  logs  script.sh
+harish@Harish:~/Embedur_Linux/module_5$ cat errors.log
+ERROR: Invalid keyword. Only alphanumeric and underscore allowed.
